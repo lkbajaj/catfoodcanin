@@ -1,29 +1,45 @@
 from food_cl import CaninKittenWet3oz, CaninKittenDry3lb
 import numpy as np
 import matplotlib.pyplot as plt
+import calendar
+from datetime import datetime, date, timedelta
 
 MONTHLY_FOOD_BUDGET = 50.00
 SINGLE_BAG_WEIGHT = 1360.5442176870747
+START_MONTH = 7
+START_DAY = 30
+CAT_AGE_MONTHS = 3 # age of the cat when it arrives in months
 
-month1 = np.full(30,29)
-month2 = np.full(30,49)
-month3 = np.full(30,49)
-month4 = np.full(30,67)
-month5 = np.full(30,67)
-months = np.concatenate((month1,month2,month3,month4,month5))
+bag_feeding_schedule = [29,49,49,67,67,68,68,68,59,59,59,51] # amount of food needed in grams
+bag_feeding_schedule = bag_feeding_schedule[CAT_AGE_MONTHS-1:]
+start_year = datetime.now().year
 
-month6 = np.full(30,68)
-month7 = np.full(30,68)
-month8 = np.full(30,68)
-month9 = np.full(30,59)
-month10 = np.full(30,59)
-month11 = np.full(30,59)
-month12 = np.full(30,51)
-months = np.concatenate((months,month6,month7,month8,month9,month10,month11,month12))
+months = []
+month = START_MONTH
+year = start_year
+day = START_DAY
 
-months = months[60:]
+# build the months array using improved calendar logic
+for grams in bag_feeding_schedule:
+    days_in_month = calendar.monthrange(year,month)[1]
+
+    if len(months) == 0:
+        feeding_days = days_in_month - day + 1
+    else: 
+        feeding_days = days_in_month
+        
+    months.append(np.full(feeding_days,grams))
+
+    # increment month and handle new year rollover
+    month += 1
+    if month > 12:
+        month = 1
+        year += 1
+
+months = np.concatenate(months)
 
 days = np.arange(1,len(months)+1)
+print(len(days))
 
 capacity = np.zeros(len(months))
 kibble_bag = CaninKittenDry3lb()
@@ -51,13 +67,6 @@ for i in range(len(months)):
 
     kibble_bag.remove_weight(daily_food_intake)
 
-plt.plot(days, capacity/SINGLE_BAG_WEIGHT,c='b')
-plt.grid()
-plt.xlabel('day')
-plt.ylabel('capacity')
-plt.title('food capacity')
-plt.show()
-
 # I want to get rid of the step behavior and simply plot the indices where I see a change [1,2,3,...,max]
 bagcountmax = np.max(bagcount)
 bagcountmin = np.min(bagcount)
@@ -70,6 +79,20 @@ bagcounter = np.arange(bagcountmin,bagcountmax+1)
 bagcounter_days = np.searchsorted(bagcount, bagcounter) + 1
 
 bagcounter_days = bagcounter_days + 1 # add one to each index to get the day at which this happens
+start_date = date(start_year, START_MONTH, START_DAY)
+bag_purchase_dates = [start_date + timedelta(days=int(day)-1) for day in bagcounter_days]
+formatted_dates = [d.strftime("%B %-d %Y") for d in bag_purchase_dates]
+
+for i, (day,label) in enumerate(zip(bagcounter_days, formatted_dates)):
+    if i > 0:
+        print(f'Bag #{i+1:<2}:  Day {day:<3}, {label}')
+
+plt.plot(days, capacity/SINGLE_BAG_WEIGHT,c='b')
+plt.grid()
+plt.xlabel('day')
+plt.ylabel('capacity')
+plt.title('food capacity')
+plt.show()
 
 plt.plot(bagcounter_days, bagcounter, c='b',marker='o')
 plt.grid()
@@ -79,13 +102,13 @@ plt.title('bags of food used')
 plt.show()
 
 
-
 plt.plot(days,available_budget,c='b')
 plt.grid()
 plt.xlabel('day')
 plt.ylabel('money available')
 plt.title('positive cashflow')
 plt.show()
+plt.close('all')
 
 print(capacity/SINGLE_BAG_WEIGHT)
 print(bagcount)
