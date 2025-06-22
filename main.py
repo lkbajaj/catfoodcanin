@@ -21,6 +21,8 @@ month11 = np.full(30,59)
 month12 = np.full(30,51)
 months = np.concatenate((months,month6,month7,month8,month9,month10,month11,month12))
 
+months = months[60:]
+
 days = np.arange(1,len(months)+1)
 
 capacity = np.zeros(len(months))
@@ -56,12 +58,27 @@ plt.ylabel('capacity')
 plt.title('food capacity')
 plt.show()
 
-plt.plot(days, bagcount, c='b')
+# I want to get rid of the step behavior and simply plot the indices where I see a change [1,2,3,...,max]
+bagcountmax = np.max(bagcount)
+bagcountmin = np.min(bagcount)
+
+# make a new array that goes from [bagcountmin, bagcountmin + 1, bagcountmin + 2, ... , bagcountmax]
+# make a new array with same length as the counter that stores the day that corresponds to when the counter goes up
+bagcounter = np.arange(bagcountmin,bagcountmax+1)
+
+# find the minimum indices at which the number of bags goes up
+bagcounter_days = np.searchsorted(bagcount, bagcounter) + 1
+
+bagcounter_days = bagcounter_days + 1 # add one to each index to get the day at which this happens
+
+plt.plot(bagcounter_days, bagcounter, c='b',marker='o')
 plt.grid()
 plt.xlabel('day')
 plt.ylabel('# bags')
 plt.title('bags of food used')
 plt.show()
+
+
 
 plt.plot(days,available_budget,c='b')
 plt.grid()
