@@ -10,7 +10,7 @@ class CatFood:
 
 
 class CaninKittenDry3lb(CatFood):
-    def __init__(self,weight,price):
+    def __init__(self):
         weight = 3 # weight in pounds
         weight = weight * POUNDSTOGRAMS # weight in grams
         price = 28.49 # subscription price Chewy, Amazon, Site
