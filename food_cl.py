@@ -16,8 +16,8 @@ class CaninKittenDry3lb(CatFood):
         price = 28.49 # subscription price Chewy, Amazon, Site
         super().__init__(weight,price)
 
-class CaninKittenWet3oz(CatFood):
-    def __init__(self,weight,price):
-        weight = 85 # weight in grams
-        price = 0.77 # price per 3 oz can
+class CaninKittenWet24Case(CatFood):
+    def __init__(self):
+        weight = 24 # "weight" as in number of cans
+        price = 54.96 # price per 3 oz can
         super().__init__(weight,price)
